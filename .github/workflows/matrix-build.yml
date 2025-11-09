@@ -1,0 +1,44 @@
+name: Matrix Build with Artifacts (build-225593c)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build (node ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [14, 16, 18]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: matrix-225593c
+        id: matrix-225593c
+        run: |
+          echo "Running matrix job for node version ${{ matrix.version }}"
+          echo "variant=${{ matrix.version }}" >> $GITHUB_OUTPUT
+
+      - name: Set up Node (for example)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.version }}
+
+      - name: Generate build artifact (create output file)
+        run: |
+          echo "Build output for version ${{ matrix.version }}" > output-${{ matrix.version }}.txt
+          echo "Generated on $(date) for matrix version ${{ matrix.version }}" >> output-${{ matrix.version }}.txt
+          # Add some unique content to guarantee non-empty artifact
+          echo "artifact-id: build-225593c-v${{ matrix.version }}" >> output-${{ matrix.version }}.txt
+
+      - name: List files (debug)
+        run: ls -la
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-225593c-v${{ matrix.version }}
+          path: output-${{ matrix.version }}.txt
